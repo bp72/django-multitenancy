@@ -12,15 +12,20 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Tenant',
+            name="Tenant",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('database_name', models.CharField(max_length=63, unique=True)),
-                ('domain_name', models.CharField(max_length=253, unique=True)),
-                ('name', models.CharField(max_length=100)),
+                ("id", models.BigAutoField(
+                    auto_created=True,
+                    primary_key=True,
+                    serialize=False,
+                    verbose_name="ID",
+                )),
+                ("database_name", models.CharField(max_length=63, unique=True)),
+                ("domain_name", models.CharField(max_length=253, unique=True)),
+                ("name", models.CharField(max_length=100)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

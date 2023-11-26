@@ -27,8 +27,8 @@ def get_tenant(domain_name):
     4. Добавлен тест в testdjangoproject/tests/ на то, что метод
        для получения модели из пункта 2 возвращает модель tenants.Tenant.
     """
+    model = get_tenant_model()
     try:
-        model = get_tenant_model()
         tenant = model.objects.get(domain_name=domain_name)
         if tenant is None:
             raise Exception("test2")

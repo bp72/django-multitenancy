@@ -15,11 +15,9 @@ def get_tenant_model():
 
 def get_tenant(domain_name):
     """
-    1. Реализован метод для получения тенанта по домену
-    2. Добавлены юнит-тесты для метода в директории tests в корне
-    3. Добавлена настройка TENANT_MODEL в testdjangoproject
-    4. Добавлен тест в testdjangoproject/tests/ на то, что метод
-       для получения модели из пункта 2 возвращает модель tenants.Tenant.
+    Get Tenant Instance by domain name. It raises 2 kind of exceptions:
+    1. ImproperlyConfigured in case of any problem with get_model
+    2. TenantDoesNotExist if there is no tenant by domain
     """
     try:
         model = get_tenant_model()

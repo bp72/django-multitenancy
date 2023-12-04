@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-TENANTS_MODEL = "tenants.Tenant"
+TENANT_MODEL = "tenants.Tenant"
 
 # Application definition
 INSTALLED_APPS = [

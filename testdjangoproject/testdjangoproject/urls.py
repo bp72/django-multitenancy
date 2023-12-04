@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from tenants.views import get_tanent_model_view
+from tenants.views import get_tanent_model_view, get_tenant_var_view, tenant_api__get_tenant_id
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("tenant_model", get_tanent_model_view),
+    path("tenant_var", get_tenant_var_view),
+    path("tenant/get/id", tenant_api__get_tenant_id),
 ]

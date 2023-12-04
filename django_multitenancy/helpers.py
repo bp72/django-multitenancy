@@ -24,10 +24,8 @@ def get_tenant(domain_name):
     try:
         model = get_tenant_model()
         tenant = model.objects.get(domain_name=domain_name)
-        if tenant is None:
-            raise Exception("test2")
         return tenant
     except ImproperlyConfigured as E:
         raise Exception(E)
     except model.DoesNotExist:
-        raise Exception("bomj")
+        raise model.TenantDoesNotExist(domain_name)

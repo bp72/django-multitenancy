@@ -1,3 +1,4 @@
+from contextvars import ContextVar
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
@@ -7,6 +8,9 @@ try:
     get_model = apps.get_model
 except ImportError:
     from django.db.models.loading import get_model
+
+
+TENANT_VAR = ContextVar("django_multitenancy_tenant")
 
 
 def get_tenant_model():

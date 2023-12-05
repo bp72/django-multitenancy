@@ -25,7 +25,9 @@ SECRET_KEY = "django-insecure-(teo+*8xvj=d*&vz6db8gzk=r)i4b9)z1p@2hkrc_k=62*9k@%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '*',
+]
 
 TENANT_MODEL = "tenants.Tenant"
 
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "django_multitenancy.middleware.MultiTenantMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

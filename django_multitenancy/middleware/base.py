@@ -11,8 +11,12 @@ class MultiTenantMiddleware(MiddlewareMixin):
         super().__init__(get_response)
         self.token = None
 
+    @staticmethod
+    def get_hostname(request) -> str:
+        return request.get_host().split(':')[0].lstrip("www.")
+
     def process_request(self, request):
-        host = request.get_host()
+        host = self.get_hostname(request)
         try:
             tenant = get_tenant(host)
             self.token = TENANT_VAR.set(tenant)

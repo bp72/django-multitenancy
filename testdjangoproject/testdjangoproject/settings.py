@@ -31,8 +31,7 @@ ALLOWED_HOSTS = [
 
 TENANT_MODEL = "tenants.Tenant"
 
-# Application definition
-INSTALLED_APPS = [
+SHARED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -41,6 +40,13 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "tenants",
 ]
+
+TENANT_APPS = [
+    "tenantapp",
+]
+
+# Application definition
+INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
 
 MIDDLEWARE = [
     "django_multitenancy.middleware.MultiTenantMiddleware",

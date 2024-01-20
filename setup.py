@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(
-    name='django-multitenancy',
+    name='django-multitenancy-plus',
     version='0.1.0',
     packages=['django_multitenancy', 'django_multitenancy/middleware'],
     url='',

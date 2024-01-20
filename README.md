@@ -1,12 +1,12 @@
 # Django Multitenancy
 
-![Django Multitenancy](path/to/your/diagram.png)
+![Django Multitenancy](django-multitenancy-arch.png)
 
-django-multitenancy is a Django library that enables multitenancy in your web applications. 
+django-multitenancy is a python library for Django applications that enables multitenancy with physical tenant data isolation (separate database instance per tenant) in your web applications. 
 
-Multitenancy is a software architecture where a single instance of an application serves multiple tenants, or clients, in a shared environment. In this model, tenants share the same application and underlying infrastructure, but their data is logically/phisically isolated, allowing each tenant to operate as if they have their own dedicated instance. Typically, multitenancy is employed to optimize resource utilization and reduce operational costs by serving a large user base with a single, shared codebase and set of resources.
+Multitenancy is a software architecture where a single instance of an application serves multiple tenants, or clients, in a shared environment. In this model, tenants share the same application and underlying infrastructure, but their data is logically/physically isolated, allowing each tenant to operate as if they have their own dedicated instance. Typically, multitenancy is employed to optimize resource utilization and reduce operational costs by serving a large user base with a single, shared codebase and set of resources.
 
-In the solution with a shared common database and separate database per tenant, a central database stores common data shared among all tenants, promoting resource efficiency, while each tenant has its own dedicated database for customized and isolated data management. This architecture provides a balance between shared resource benefits and individual tenant autonomy, making it well-suited for applications where tenants require varying levels of customization and data isolation. However, it introduces increased complexity in database management as each tenant's database needs separate administration
+In the solution with a shared common database and separate database per tenant, a central database stores common data shared among all tenants, promoting resource efficiency, while each tenant has its own dedicated database for customized and isolated data management. This architecture provides a balance between shared resource benefits and individual tenant autonomy, making it well-suited for applications where tenants require varying levels of customization and data isolation. However, it introduces increased complexity in database management as each tenant's database needs separate administration.
 
 
 ## Table of Contents
@@ -22,77 +22,92 @@ In the solution with a shared common database and separate database per tenant, 
 
 ## Installation
 
-To install the `django-multitenancy` package, use the following pip command:
+To install the `django-multitenancy-plus` package, use the following pip command:
 
 ```bash
-pip install django-multitenancy
+pip install django-multitenancy-plus
 ```
 
 ## Usage
 
-### Configuring Multitenancy
+### Defining Tenant-Specific Models
 
-In your Django project's settings, add `multitenancy` to your `INSTALLED_APPS`:
+Create tenant app and add tenant model by inheriting from `django_multitenancy.mixins.TenantMixin`:
 
 ```python
-INSTALLED_APPS = [
-    # ...
-    'multitenancy',
-    # ...
-]
+from django_multitenancy.mixins import TenantMixin
+
+
+class Tenant(TenantMixin):
+    name = models.CharField(max_length=100, null=False)
 ```
 
-Include the `TenantMiddleware` in your `MIDDLEWARE`:
+Define tenant model in settings.py:
+```python
+TENANT_MODEL = "tenants.Tenant"
+```
+
+In your Django project's settings, add `tenants` to your `SHARED_APPS`:
+
+```python
+# data for this list of apps would exist in every database schema/database instance
+SHARED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "tenants",
+]
+
+# data for this list of apps would exist in single database schema/database instance
+TENANT_APPS = [
+    "tenantapp",
+]
+
+# Application definition
+INSTALLED_APPS = SHARED_APPS + [app for app in TENANT_APPS if app not in SHARED_APPS]
+```
+
+Include the `MultiTenantMiddleware` in your `MIDDLEWARE`:
 
 ```python
 MIDDLEWARE = [
-    # ...
-    'multitenancy.middleware.TenantMiddleware',
+    # make it first
+    "django_multitenancy.middleware.MultiTenantMiddleware",
+    
     # ...
 ]
-```
-
-### Defining Tenant-Specific Models
-
-Create tenant-specific models by inheriting from `multitenancy.models.TenantModel`:
-
-```python
-from multitenancy.models import TenantModel
-
-class TenantSpecificModel(TenantModel):
-    # Your model fields here
-    name = models.CharField(max_length=255)
 ```
 
 ### Accessing Tenant-Specific Data
 
-To access tenant-specific data, use the `TenantManager`:
+To access tenant-specific data, use the contextvar `TENANT_VAR`:
 
 ```python
-from multitenancy.managers import TenantManager
+from django.http import HttpResponse, JsonResponse
+from django_multitenancy.helpers import get_tenant_model, TENANT_VAR
 
-class YourModel(models.Model):
-    # Your model fields here
-    name = models.CharField(max_length=255)
-    
-    # Use the TenantManager for tenant-specific queries
-    objects = TenantManager()
+
+def get_tanent_model_view(request):
+    model = get_tenant_model()
+    html = f"<html><body><h1>{model.__name__}</h1><h2>{request}</h2></body></html>"
+    return HttpResponse(html, content_type="text/html", status=200)
+
+
+def get_tenant_var_view(request):
+    html = f"tenant: {TENANT_VAR.get()}"
+    return HttpResponse(html, content_type="text/html", status=200)
+
+
+def tenant_api__get_tenant_id(request):
+    tenant = TENANT_VAR.get()
+    return JsonResponse({
+        "tenant_id": tenant.id,
+    })
 ```
 
-### Example
-
-Here's a simple example of using Django Multitenancy in a view:
-
-```python
-from django.shortcuts import render
-from .models import TenantSpecificModel
-
-def your_view(request):
-    # Get tenant-specific data using the TenantManager
-    data = TenantSpecificModel.objects.all()
-
-    return render(request, 'your_template.html', {'data': data})
-```
 
 For a more detailed example, check the [examples](examples/) directory in this repository.
 
@@ -103,73 +118,3 @@ We welcome contributions! Please follow our [contribution guidelines](CONTRIBUTI
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-
-
-A library that implements usage of multiple databases for multitenant django applications.
-
-----
-
-Concept
--------
-Software multitenancy is a software architecture in which a single instance of software runs on a server and serves multiple tenants. 
-
-Systems designed in such manner are "shared" (rather than "dedicated" or "isolated"). 
-
-A **tenant** is a group of users who share a common access with specific privileges to the 
-software instance. 
-
-With a multitenant architecture, a software application is designed to 
-provide every tenant a dedicated share of the instance - including its data, configuration, 
-user management, tenant individual functionality and non-functional properties. 
-
-Multitenancy contrasts with multi-instance architectures, where separate software instances 
-operate on behalf of different tenants.
-
-
-Features
---------
-
-* List of features
-
-
-Requirements
-------------
-
-* django>=4,<4.3
-
-
-Installation
-------------
-
-Install `django-multitenancy` via `pip`_ from `PyPI`_::
-
-    $ pip install django-multitenancy
-
-Usage
------
-
-*
-
-Contributing
-------------
-Contributions are very welcome. Tests can be run with `tox`_, please ensure
-the coverage at least stays the same before you submit a pull request.
-
-License
--------
-
-Distributed under the terms of the `MIT`_ license, "django-multitenancy" is free and open source software
-
-
-Issues
-------
-
-If you encounter any problems, please `file an issue`_ along with a detailed description.
-
-.. _`MIT`: http://opensource.org/licenses/MIT
-.. _`file an issue`: https://github.com/bp72/django-multitenancy/issues
-.. _`tox`: https://tox.readthedocs.io/en/latest/
-.. _`pip`: https://pypi.org/project/pip/
-.. _`PyPI`: https://pypi.org/project

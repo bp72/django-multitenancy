@@ -14,10 +14,24 @@ A library that implements usage of multiple databases for multitenant django app
 
 ----
 
+Concept
+-------
+Software multitenancy is a software architecture in which a single 
+instance of software runs on a server and serves multiple tenants. 
+Systems designed in such manner are "shared" (rather than "dedicated" or "isolated"). 
+A tenant is a group of users who share a common access with specific privileges to the 
+software instance. With a multitenant architecture, a software application is designed to 
+provide every tenant a dedicated share of the instance - including its data, configuration, 
+user management, tenant individual functionality and non-functional properties. 
+
+Multitenancy contrasts with multi-instance architectures, where separate software instances 
+operate on behalf of different tenants.[1]
+1111
+
 Features
 --------
 
-*
+* List of features
 
 
 Requirements

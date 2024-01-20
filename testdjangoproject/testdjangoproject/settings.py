@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
 
 TENANT_MODEL = "tenants.Tenant"
 
+# data for this list of apps would exist in every database schema/database instance
 SHARED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -41,6 +42,7 @@ SHARED_APPS = [
     "tenants",
 ]
 
+# data for this list of apps would exist in single database schema/database instance
 TENANT_APPS = [
     "tenantapp",
 ]
